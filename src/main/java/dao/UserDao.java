@@ -1,4 +1,4 @@
-package persistence;
+package dao;
 
 import com.google.inject.Inject;
 import io.dropwizard.hibernate.AbstractDAO;
@@ -48,6 +48,10 @@ public class UserDao extends AbstractDAO<User> {
     public Integer retrieveHighestId() {
         Integer id = (Integer) currentSession().createQuery("select max(user_id) from user").uniqueResult();
         return id == null ? 1 : id;
+    }
+
+    public User retrieve(Integer id) {
+        return get(id);
     }
 
 

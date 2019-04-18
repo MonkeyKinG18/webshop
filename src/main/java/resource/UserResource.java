@@ -1,4 +1,4 @@
-package recourse;
+package resource;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
@@ -6,17 +6,18 @@ import io.dropwizard.hibernate.UnitOfWork;
 import model.User;
 import service.UserService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Path("/info")
+/**
+ * @author Omid Wiar
+ */
+@Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
     UserService userService;
@@ -26,29 +27,61 @@ public class UserResource {
         this.userService = service;
     }
 
-    @POST
-    @Timed
-    @Path("/postName")
-    public String postName(String name) {
-        System.out.println("Name given by : "+name);
-        return "Ok";
-    }
-
-    @POST
-    @Path("/")
-    @UnitOfWork
-    public Response store(@NotNull @Valid User user){
-        userService.store(user);
-        return Response.status(201).build();
-    }
-
     @GET
     @Timed
     @UnitOfWork
     @Path("/")
-    public List<User> findAllEmp() {
-//        System.out.println("All Emp  : "+userService.retrieveAll());
+    @RolesAllowed({"ADMIN"})
+    public List<User> retrieveAll() {
         return userService.retrieveAll();
-
     }
+
+//    @GET
+//    @Timed
+//    @UnitOfWork
+//    @Path("/{emailAddress}")
+//    @RolesAllowed({"GUEST", "ADMIN"})
+//    public User retrieve(@PathParam("emailAddress") String emailAddress) {
+//        return userService.retrieve(emailAddress);
+//    }
+
+    @GET
+    @Timed
+    @UnitOfWork
+    @Path("/{id}")
+    @RolesAllowed({"GUEST", "ADMIN"})
+    public User retrieveByID(@PathParam("id") Integer id) {
+        return userService.retrieveById(id);
+    }
+
+    @POST
+    @Path("/")
+    @UnitOfWork
+    public Response create(@NotNull @Valid User user){
+        userService.store(user);
+        return Response.status(201).build();
+    }
+
+    @PUT
+    @Path("/")
+    @UnitOfWork
+    public Response update(@NotNull @Valid User user){
+        userService.update(user);
+        return Response.status(200).build();
+    }
+
+
+    @DELETE
+    @Path("/{id}")
+    @UnitOfWork
+    @RolesAllowed("ADMIN")
+    public Response delete(@PathParam("id") int id){
+        userService.delete(id);
+        return Response.status(200).build();
+    }
+
+//    @GET
+//    @Path("/newId")
+//    @UnitOfWork
+//    public int generateNewId() { return userService.generateNewId(); }
 }

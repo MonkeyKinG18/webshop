@@ -1,12 +1,20 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Entity
 @Table(name="orders")
-public class Order {
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +33,8 @@ public class Order {
     @JoinColumn(name="userId")
     private User user;
 
-    @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "orders", orphanRemoval = true, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrderItem> orderItems;
 
 
@@ -61,11 +70,11 @@ public class Order {
         this.user = user;
     }
 
-    public List<OrderItem> getOrderItems() {
+    public List<OrderItem> getOrderItemsList() {
         return orderItems;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItemsList(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
 
